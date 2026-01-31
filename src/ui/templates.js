@@ -1,28 +1,21 @@
-export const renderMainUI = (mode) => `
+export const renderMainUI = (mode) => {
+  const title = mode === 'full' ? 'REX (Actions)' : 'AIRA (Records)';
+  const placeholder = mode === 'full' ? 'Ask REX to perform actions...' : 'Ask AIRA about records...';
+
+  return `
   <div class="clicky-header">
-    <span>Foundry AI</span>
+    <span>${title}</span>
     <span id="clicky-toggle">_</span>
-  </div>
-  <div class="clicky-persona-toggle">
-    <button class="clicky-persona-btn active" data-persona="AIRA">
-      <span class="persona-icon">📋</span>
-      <span class="persona-name">AIRA</span>
-      <span class="persona-role">Records</span>
-    </button>
-    <button class="clicky-persona-btn" data-persona="REX">
-      <span class="persona-icon">⚡</span>
-      <span class="persona-name">REX</span>
-      <span class="persona-role">Actions</span>
-    </button>
   </div>
   <div class="clicky-body" id="clicky-results">
     <div id="clicky-suggestions"></div>
   </div>
   <div class="clicky-input-area">
-    <input type="text" class="clicky-input" id="clicky-input" placeholder="Ask AIRA or REX..." />
+    <input type="text" class="clicky-input" id="clicky-input" placeholder="${placeholder}" />
     <button class="clicky-btn" id="clicky-send">Ask</button>
   </div>
 `;
+};
 
 export const renderPersonaResponse = (response) => {
   const personaClass = response.persona === 'AIRA' ? 'aira' : 'rex';

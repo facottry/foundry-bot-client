@@ -1,5 +1,7 @@
 export const styles = `
   :host { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  :host(.embedded) { position: relative; bottom: auto; right: auto; width: 100%; height: 100%; }
+  :host(.embedded) .clicky-ui { width: 100% !important; height: 100% !important; max-height: none; border: none; box-shadow: none; border-radius: 0; }
   
   /* ============================================ */
   /* CONTAINER STYLES */

@@ -22,6 +22,24 @@
         <p id="login-error" style="color: red; display: none;"></p>
     </div>
 
+    <!-- Persistent Container for Full Mode -->
+    <div id="rex-widget-container" style="
+       position: fixed; 
+        bottom: 20px; 
+        right: 20px; 
+        max-width:800px;
+        min-width: 200px;   
+        width: calc(90% - 200px); 
+        max-height: 800px;
+        min-height: 400px;
+        height: calc(90% - 300px); 
+        z-index: 9999; 
+        border: 1px dashed #ccc; 
+        display: flex; 
+        flex-direction: column;
+        ">
+    </div>
+
     <script src="./clickysdk.js"></script>
     <script>
         const loginBtn = document.getElementById('login-btn');
@@ -69,8 +87,19 @@
                     serverUrl: 'http://localhost:5003', // BotServer
                     context: {
                         page: 'full_demo'
-                    }
+                    },
+                    containerId: 'rex-widget-container' // Explicit container
                 });
+
+                let status = clickyObj.mount()
+                if (!status) {
+                    console.error('Clicky failed to mount');
+                    return;
+                } else {
+                    console.log('Clicky mounted successfully');
+                }
+                var data = responseData.data;
+
 
                 // Hide login form after success
                 loginForm.style.display = 'none';

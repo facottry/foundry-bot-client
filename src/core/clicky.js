@@ -7,7 +7,10 @@ export class ClickyCore {
         this.config = null;
         this.api = null;
         this.shadowRoot = null;
-        this.selectedPersona = 'AIRA'; // Default to AIRA (records)
+        this.host = null;
+        // Determine default persona based on mode (if provided in config later)
+        this.selectedPersona = 'AIRA'; // Default
+
 
         if (config) {
             this.init(config);
@@ -32,15 +35,49 @@ export class ClickyCore {
         };
 
         this.api = new ApiClient(this.config.serverUrl, this.config.token);
-        console.log('[Foundry AI] Core Initialized');
-        this.mount();
+
+        // Dynamic Persona Selection
+        if (this.config.mode === 'full') {
+            this.selectedPersona = 'REX';
+        } else {
+            this.selectedPersona = 'AIRA';
+        }
+
+        console.log('[Foundry AI] Core Initialized. Persona:', this.selectedPersona);
+        // this.mount(); //no need
     }
 
     mount() {
-        // Host
+        // Find Container
+        let container = null;
+        const target = this.config.containerId; // Support string or element
+
+        if (target) {
+            if (typeof target === 'string') {
+                container = document.getElementById(target);
+            } else if (target instanceof HTMLElement) {
+                container = target;
+            }
+        }
+
+        if (!container) {
+            return false;
+        }
+
+        // Reuse existing Host if available (Preserves Chart/State)
+        if (this.host) {
+            this.host.classList.add('embedded');
+            container.appendChild(this.host);
+            return true;
+        }
+
+        // Require creation
         const host = document.createElement('div');
         host.id = 'clicky-host';
-        document.body.appendChild(host);
+        host.classList.add('embedded');
+        container.appendChild(host);
+
+        this.host = host; // Store ref
         this.shadowRoot = host.attachShadow({ mode: 'open' });
 
         // Styles
@@ -58,28 +95,15 @@ export class ClickyCore {
         this.bindEvents(wrapper);
 
         // Display initial greeting
-        this.showGreeting();
-    }
+        // this.showGreeting();
 
-    showGreeting() {
-        const results = this.shadowRoot.getElementById('clicky-results');
-        if (results) {
-            const greetingDiv = document.createElement('div');
-            greetingDiv.className = 'clicky-greeting';
-            greetingDiv.innerHTML = `
-                <p><strong>AIRA</strong> - Archives & Records</p>
-                <p><strong>REX</strong> - Decisions & Actions</p>
-                <p style="margin-top:8px; font-size:12px; color:#666;">Select a persona and ask your question.</p>
-            `;
-            results.appendChild(greetingDiv);
-        }
+        return true;
     }
 
     bindEvents(wrapper) {
         const input = this.shadowRoot.getElementById('clicky-input');
         const sendBtn = this.shadowRoot.getElementById('clicky-send');
         const toggleBtn = this.shadowRoot.getElementById('clicky-toggle');
-        const personaBtns = this.shadowRoot.querySelectorAll('.clicky-persona-btn');
 
         // Send query
         sendBtn.addEventListener('click', () => this.handlePersonaQuery(input.value));
@@ -96,17 +120,6 @@ export class ClickyCore {
             } else {
                 wrapper.style.height = '';
             }
-        });
-
-        // Persona toggle
-        personaBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                personaBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.selectedPersona = btn.dataset.persona;
-                input.placeholder = `Ask ${this.selectedPersona}...`;
-                console.log('[Foundry AI] Selected persona:', this.selectedPersona);
-            });
         });
     }
 
@@ -131,12 +144,23 @@ export class ClickyCore {
                 this.config.productId // Optional product context
             );
 
+            console.log('[Foundry AI] API Response:', response);
+
+            // Normalize response (handle {data: ...} wrapper if present)
+            const data = response.data || response;
+
             // Remove loader
             const loader = this.shadowRoot.getElementById(loadingId);
             if (loader) loader.remove();
 
             // Render persona response
-            results.insertAdjacentHTML('beforeend', renderPersonaResponse(response));
+            if (data && data.answer) {
+                const html = renderPersonaResponse(data);
+                results.insertAdjacentHTML('beforeend', html);
+            } else {
+                console.error('[Foundry AI] Invalid response format:', data);
+                results.appendChild(renderError('Received invalid response from AI.'));
+            }
 
         } catch (err) {
             console.error('[Foundry AI] Error:', err);
@@ -146,5 +170,29 @@ export class ClickyCore {
         }
 
         results.scrollTop = results.scrollHeight;
+    }
+    toggle() {
+        const wrapper = this.shadowRoot ? this.shadowRoot.querySelector('.clicky-ui') : null;
+        if (wrapper) {
+            // Check if minimized
+            const isMinimized = wrapper.classList.contains('minimized');
+            if (isMinimized) {
+                // Open
+                wrapper.classList.remove('minimized', 'mini');
+                wrapper.style.height = '';
+            } else {
+                // Close/Minimize
+                wrapper.classList.add('minimized', 'mini');
+                wrapper.style.height = '48px';
+            }
+        }
+    }
+
+    open() {
+        const wrapper = this.shadowRoot ? this.shadowRoot.querySelector('.clicky-ui') : null;
+        if (wrapper) {
+            wrapper.classList.remove('minimized', 'mini');
+            wrapper.style.height = '';
+        }
     }
 }

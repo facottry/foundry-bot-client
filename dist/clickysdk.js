@@ -1,5 +1,7 @@
-(function(c,l){typeof exports=="object"&&typeof module<"u"?l(exports):typeof define=="function"&&define.amd?define(["exports"],l):(c=typeof globalThis<"u"?globalThis:c||self,l(c.ClickyBot={}))})(this,(function(c){"use strict";class l{constructor(e,o){this.serverUrl=e,this.token=o}async startSession(){const e=await fetch(`${this.serverUrl}/api/session/start`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({})});if(!e.ok)throw new Error(`Session Start Error: ${e.statusText}`);return await e.json()}async askPersona(e,o=null,i=null){const n=await fetch(`${this.serverUrl}/api/persona/ask`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,persona:o,productId:i})});if(!n.ok)throw new Error(`Persona Ask Error: ${n.statusText}`);return await n.json()}async query(e,o){const i=await fetch(`${this.serverUrl}/api/query`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,context:o})});if(!i.ok)throw new Error(`API Error: ${i.statusText}`);return await i.json()}}const p=`
+(function(c,a){typeof exports=="object"&&typeof module<"u"?a(exports):typeof define=="function"&&define.amd?define(["exports"],a):(c=typeof globalThis<"u"?globalThis:c||self,a(c.ClickyBot={}))})(this,(function(c){"use strict";class a{constructor(e,i){this.serverUrl=e,this.token=i}async startSession(){const e=await fetch(`${this.serverUrl}/api/session/start`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({})});if(!e.ok)throw new Error(`Session Start Error: ${e.statusText}`);return await e.json()}async askPersona(e,i=null,o=null){const r=await fetch(`${this.serverUrl}/api/persona/ask`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,persona:i,productId:o})});if(!r.ok)throw new Error(`Persona Ask Error: ${r.statusText}`);return await r.json()}async query(e,i){const o=await fetch(`${this.serverUrl}/api/query`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,context:i})});if(!o.ok)throw new Error(`API Error: ${o.statusText}`);return await o.json()}}const x=`
   :host { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  :host(.embedded) { position: relative; bottom: auto; right: auto; width: 100%; height: 100%; }
+  :host(.embedded) .clicky-ui { width: 100% !important; height: 100% !important; max-height: none; border: none; box-shadow: none; border-radius: 0; }
   
   /* ============================================ */
   /* CONTAINER STYLES */
@@ -171,36 +173,24 @@
   /* FOUNDER GRID */
   /* ============================================ */
   .clicky-founder-grid { display: flex; flex-direction: column; gap: 12px; }
-`,f=t=>`
+`,g=t=>`
   <div class="clicky-header">
-    <span>Foundry AI</span>
+    <span>${t==="full"?"REX (Actions)":"AIRA (Records)"}</span>
     <span id="clicky-toggle">_</span>
-  </div>
-  <div class="clicky-persona-toggle">
-    <button class="clicky-persona-btn active" data-persona="AIRA">
-      <span class="persona-icon">📋</span>
-      <span class="persona-name">AIRA</span>
-      <span class="persona-role">Records</span>
-    </button>
-    <button class="clicky-persona-btn" data-persona="REX">
-      <span class="persona-icon">⚡</span>
-      <span class="persona-name">REX</span>
-      <span class="persona-role">Actions</span>
-    </button>
   </div>
   <div class="clicky-body" id="clicky-results">
     <div id="clicky-suggestions"></div>
   </div>
   <div class="clicky-input-area">
-    <input type="text" class="clicky-input" id="clicky-input" placeholder="Ask AIRA or REX..." />
+    <input type="text" class="clicky-input" id="clicky-input" placeholder="${t==="full"?"Ask REX to perform actions...":"Ask AIRA about records..."}" />
     <button class="clicky-btn" id="clicky-send">Ask</button>
   </div>
-`,x=t=>{const e=t.persona==="AIRA"?"aira":"rex",o=Math.round(t.confidence*100);return`
+`,h=t=>{const e=t.persona==="AIRA"?"aira":"rex",i=Math.round(t.confidence*100);return`
     <div class="clicky-persona-response ${e}">
         <div class="response-header">
             <span class="response-persona">${t.persona||"SYSTEM"}</span>
-            <span class="response-confidence" title="Confidence: ${o}%">
-                <span class="confidence-bar" style="width: ${o}%"></span>
+            <span class="response-confidence" title="Confidence: ${i}%">
+                <span class="confidence-bar" style="width: ${i}%"></span>
             </span>
         </div>
         <div class="response-answer">${t.answer}</div>
@@ -211,9 +201,5 @@
         `:""}
         ${t.notes?`<div class="response-notes">${t.notes}</div>`:""}
     </div>
-    `},g=t=>`<p id="${t}" style="color:#666; font-style:italic;">Thinking...</p>`,y=t=>{const e=document.createElement("p");return e.className="clicky-error",e.textContent=t,e};class d{constructor(e){this.config=null,this.api=null,this.shadowRoot=null,this.selectedPersona="AIRA",e&&this.init(e)}init(e){if(this.config){console.warn("Clicky already initialized");return}if(!e||!e.token){console.error("Clicky: Auth token is required.");return}this.config={mode:"mini",serverUrl:"http://localhost:5003",...e},this.api=new l(this.config.serverUrl,this.config.token),console.log("[Foundry AI] Core Initialized"),this.mount()}mount(){const e=document.createElement("div");e.id="clicky-host",document.body.appendChild(e),this.shadowRoot=e.attachShadow({mode:"open"});const o=document.createElement("style");o.textContent=p,this.shadowRoot.appendChild(o);const i=document.createElement("div");i.className=`clicky-ui ${this.config.mode}`,i.innerHTML=f(this.config.mode),this.shadowRoot.appendChild(i),this.bindEvents(i),this.showGreeting()}showGreeting(){const e=this.shadowRoot.getElementById("clicky-results");if(e){const o=document.createElement("div");o.className="clicky-greeting",o.innerHTML=`
-                <p><strong>AIRA</strong> - Archives & Records</p>
-                <p><strong>REX</strong> - Decisions & Actions</p>
-                <p style="margin-top:8px; font-size:12px; color:#666;">Select a persona and ask your question.</p>
-            `,e.appendChild(o)}}bindEvents(e){const o=this.shadowRoot.getElementById("clicky-input"),i=this.shadowRoot.getElementById("clicky-send"),n=this.shadowRoot.getElementById("clicky-toggle"),a=this.shadowRoot.querySelectorAll(".clicky-persona-btn");i.addEventListener("click",()=>this.handlePersonaQuery(o.value)),o.addEventListener("keypress",r=>{r.key==="Enter"&&this.handlePersonaQuery(o.value)}),n.addEventListener("click",()=>{e.classList.toggle("mini"),e.classList.toggle("minimized"),e.classList.contains("minimized")?e.style.height="48px":e.style.height=""}),a.forEach(r=>{r.addEventListener("click",()=>{a.forEach(s=>s.classList.remove("active")),r.classList.add("active"),this.selectedPersona=r.dataset.persona,o.placeholder=`Ask ${this.selectedPersona}...`,console.log("[Foundry AI] Selected persona:",this.selectedPersona)})})}async handlePersonaQuery(e){const o=this.shadowRoot.getElementById("clicky-input"),i=this.shadowRoot.getElementById("clicky-results"),n=e.trim();if(!n)return;const a="loading-"+Date.now();i.insertAdjacentHTML("beforeend",g(a)),i.scrollTop=i.scrollHeight,o.value="";try{const r=await this.api.askPersona(n,this.selectedPersona,this.config.productId),s=this.shadowRoot.getElementById(a);s&&s.remove(),i.insertAdjacentHTML("beforeend",x(r))}catch(r){console.error("[Foundry AI] Error:",r);const s=this.shadowRoot.getElementById(a);s&&s.remove(),i.appendChild(y("Connection failed."))}i.scrollTop=i.scrollHeight}}const h=d;window.ClickyBot=d,c.ClickyBot=h,Object.defineProperty(c,Symbol.toStringTag,{value:"Module"})}));
+    `},y=t=>`<p id="${t}" style="color:#666; font-style:italic;">Thinking...</p>`,d=t=>{const e=document.createElement("p");return e.className="clicky-error",e.textContent=t,e};class p{constructor(e){this.config=null,this.api=null,this.shadowRoot=null,this.host=null,this.selectedPersona="AIRA",e&&this.init(e)}init(e){if(this.config){console.warn("Clicky already initialized");return}if(!e||!e.token){console.error("Clicky: Auth token is required.");return}this.config={mode:"mini",serverUrl:"http://localhost:5003",...e},this.api=new a(this.config.serverUrl,this.config.token),this.config.mode==="full"?this.selectedPersona="REX":this.selectedPersona="AIRA",console.log("[Foundry AI] Core Initialized. Persona:",this.selectedPersona)}mount(){let e=null;const i=this.config.containerId;if(i&&(typeof i=="string"?e=document.getElementById(i):i instanceof HTMLElement&&(e=i)),!e)return!1;if(this.host)return this.host.classList.add("embedded"),e.appendChild(this.host),!0;const o=document.createElement("div");o.id="clicky-host",o.classList.add("embedded"),e.appendChild(o),this.host=o,this.shadowRoot=o.attachShadow({mode:"open"});const r=document.createElement("style");r.textContent=x,this.shadowRoot.appendChild(r);const n=document.createElement("div");return n.className=`clicky-ui ${this.config.mode}`,n.innerHTML=g(this.config.mode),this.shadowRoot.appendChild(n),this.bindEvents(n),!0}bindEvents(e){const i=this.shadowRoot.getElementById("clicky-input"),o=this.shadowRoot.getElementById("clicky-send"),r=this.shadowRoot.getElementById("clicky-toggle");o.addEventListener("click",()=>this.handlePersonaQuery(i.value)),i.addEventListener("keypress",n=>{n.key==="Enter"&&this.handlePersonaQuery(i.value)}),r.addEventListener("click",()=>{e.classList.toggle("mini"),e.classList.toggle("minimized"),e.classList.contains("minimized")?e.style.height="48px":e.style.height=""})}async handlePersonaQuery(e){const i=this.shadowRoot.getElementById("clicky-input"),o=this.shadowRoot.getElementById("clicky-results"),r=e.trim();if(!r)return;const n="loading-"+Date.now();o.insertAdjacentHTML("beforeend",y(n)),o.scrollTop=o.scrollHeight,i.value="";try{const l=await this.api.askPersona(r,this.selectedPersona,this.config.productId);console.log("[Foundry AI] API Response:",l);const s=l.data||l,f=this.shadowRoot.getElementById(n);if(f&&f.remove(),s&&s.answer){const k=h(s);o.insertAdjacentHTML("beforeend",k)}else console.error("[Foundry AI] Invalid response format:",s),o.appendChild(d("Received invalid response from AI."))}catch(l){console.error("[Foundry AI] Error:",l);const s=this.shadowRoot.getElementById(n);s&&s.remove(),o.appendChild(d("Connection failed."))}o.scrollTop=o.scrollHeight}toggle(){const e=this.shadowRoot?this.shadowRoot.querySelector(".clicky-ui"):null;e&&(e.classList.contains("minimized")?(e.classList.remove("minimized","mini"),e.style.height=""):(e.classList.add("minimized","mini"),e.style.height="48px"))}open(){const e=this.shadowRoot?this.shadowRoot.querySelector(".clicky-ui"):null;e&&(e.classList.remove("minimized","mini"),e.style.height="")}}const u=p;window.ClickyBot=p,c.ClickyBot=u,Object.defineProperty(c,Symbol.toStringTag,{value:"Module"})}));
 //# sourceMappingURL=clickysdk.js.map
