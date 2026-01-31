@@ -1,0 +1,2 @@
+/* Base styles logic is handled inside shadow DOM injection in JS for single-file portability */
+/* This file is kept if we want to extract it via Vite eventually */

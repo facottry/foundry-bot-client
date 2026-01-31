@@ -1,0 +1,22 @@
+{
+  "name": "botclient",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "kill": "npx kill-port 3002",
+    "serve": "npx http-server dist -p 3002 -c-1",
+    "demo": "npx kill-port 3002 || true && npm run build && npx http-server dist -p 3002 -c-1",
+    "production": "git push -f origin main:PRODUCTION_DEPLOYMENT"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "vite": "^7.3.1"
+  }
+}
