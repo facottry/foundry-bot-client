@@ -9,7 +9,7 @@ export class ApiClient {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`
+                ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
             },
             body: JSON.stringify({})
         });
@@ -21,17 +21,18 @@ export class ApiClient {
         return await res.json();
     }
 
-    async askPersona(query, persona = null, productId = null) {
+    async askPersona(query, persona = null, productId = null, sessionId = null) {
         const res = await fetch(`${this.serverUrl}/api/persona/ask`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`
+                ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
             },
             body: JSON.stringify({
                 query,
                 persona,
-                productId
+                productId,
+                sessionId
             })
         });
 
@@ -47,7 +48,7 @@ export class ApiClient {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`
+                ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
             },
             body: JSON.stringify({
                 query: text,

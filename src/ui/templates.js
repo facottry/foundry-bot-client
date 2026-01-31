@@ -40,6 +40,22 @@ export const renderPersonaResponse = (response) => {
     `;
 };
 
+export const renderUserMessage = (text) => `
+  <div class="clicky-user-message" style="
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      align-self: flex-end;
+      max-width: 80%;
+      margin-left: auto;
+      color: #334155;
+      font-size: 0.9em;
+  ">
+    ${text}
+  </div>
+`;
+
 export const renderLoading = (id) => `<p id="${id}" style="color:#666; font-style:italic;">Thinking...</p>`;
 
 export const renderError = (msg) => {

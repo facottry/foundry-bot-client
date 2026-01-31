@@ -46,7 +46,18 @@
         const loginForm = document.getElementById('login-form');
         const errorMsg = document.getElementById('login-error');
 
-        loginBtn.addEventListener('click', async () => {
+
+        function bodyonload() {
+            var isLogin = checkLogin();
+            if (isLogin) {
+                loginForm.style.display = 'none';
+            } else {
+                loginBtn.addEventListener('click', onLogin);
+            }
+        }
+
+
+        async function onLogin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
@@ -72,6 +83,8 @@
                 // FIX: API returns { success: true, data: { token: "..." } }
                 // We must access responseData.data.token
                 const token = responseData.data?.token || responseData.token;
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(responseData.data));
 
                 if (!token) {
                     console.error('Full Response:', responseData);
@@ -116,7 +129,48 @@
                 loginBtn.textContent = 'Login';
                 loginBtn.disabled = false;
             }
-        });
+        }
+
+
+        function checkLogin() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (token && user) {
+                //make 
+                // Initialize Clicky with Real Token
+                console.log('Got Token:', token);
+
+                var clickyObj = new ClickyBot({
+                    mode: 'full',
+                    token: token,
+                    serverUrl: 'http://localhost:5003', // BotServer
+                    context: {
+                        page: 'full_demo'
+                    },
+                    containerId: 'rex-widget-container' // Explicit container
+                });
+
+                let status = clickyObj.mount()
+                if (!status) {
+                    console.error('Clicky failed to mount');
+                    return;
+                } else {
+                    console.log('Clicky mounted successully');
+                }
+
+                // Hide login form after success
+                loginForm.style.display = 'none';
+                const successMsg = document.createElement('p');
+                successMsg.textContent = `Logged in as ${user.name}. Clicky Initialized!`;
+                successMsg.style.color = 'green';
+                document.body.insertBefore(successMsg, document.body.firstChild);
+            }
+        }
+
+
+
+
+        document.addEventListener('DOMContentLoaded', bodyonload);
     </script>
 </body>
 
