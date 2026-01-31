@@ -1,4 +1,4 @@
-(function(r,l){typeof exports=="object"&&typeof module<"u"?l(exports):typeof define=="function"&&define.amd?define(["exports"],l):(r=typeof globalThis<"u"?globalThis:r||self,l(r.ClickyBot={}))})(this,(function(r){"use strict";class l{constructor(e,t){this.serverUrl=e,this.token=t}async query(e,t){const i=await fetch(`${this.serverUrl}/api/query`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,context:t})});if(!i.ok)throw new Error(`API Error: ${i.statusText}`);return await i.json()}}const x=`
+(function(c,l){typeof exports=="object"&&typeof module<"u"?l(exports):typeof define=="function"&&define.amd?define(["exports"],l):(c=typeof globalThis<"u"?globalThis:c||self,l(c.ClickyBot={}))})(this,(function(c){"use strict";class l{constructor(e,o){this.serverUrl=e,this.token=o}async startSession(){const e=await fetch(`${this.serverUrl}/api/session/start`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({})});if(!e.ok)throw new Error(`Session Start Error: ${e.statusText}`);return await e.json()}async askPersona(e,o=null,i=null){const n=await fetch(`${this.serverUrl}/api/persona/ask`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,persona:o,productId:i})});if(!n.ok)throw new Error(`Persona Ask Error: ${n.statusText}`);return await n.json()}async query(e,o){const i=await fetch(`${this.serverUrl}/api/query`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${this.token}`},body:JSON.stringify({query:e,context:o})});if(!i.ok)throw new Error(`API Error: ${i.statusText}`);return await i.json()}}const p=`
   :host { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
   
   /* ============================================ */
@@ -20,6 +20,41 @@
   .clicky-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
   .clicky-btn { background: #1e1e2e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
   .clicky-btn:hover { background: #2d2d44; }
+  
+  /* ============================================ */
+  /* GREETING MESSAGE */
+  /* ============================================ */
+  .clicky-greeting { background: linear-gradient(135deg, #f0f4ff 0%, #e8f4f8 100%); border: 1px solid #d1e5f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .clicky-greeting p { margin: 0 0 6px 0; font-size: 13px; color: #334155; line-height: 1.5; }
+  .clicky-greeting p:last-child { margin-bottom: 0; }
+
+  /* ============================================ */
+  /* PERSONA TOGGLE */
+  /* ============================================ */
+  .clicky-persona-toggle { display: flex; gap: 8px; padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .clicky-persona-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 8px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s; }
+  .clicky-persona-btn:hover { border-color: #cbd5e1; }
+  .clicky-persona-btn.active { border-color: #6366f1; background: #f0f0ff; }
+  .clicky-persona-btn[data-persona="REX"].active { border-color: #f97316; background: #fff7ed; }
+  .persona-icon { font-size: 18px; margin-bottom: 4px; }
+  .persona-name { font-size: 13px; font-weight: 600; color: #1e1e2e; }
+  .persona-role { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ============================================ */
+  /* PERSONA RESPONSE */
+  /* ============================================ */
+  .clicky-persona-response { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .clicky-persona-response.aira { border-left: 4px solid #6366f1; }
+  .clicky-persona-response.rex { border-left: 4px solid #f97316; }
+  .response-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .response-persona { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; }
+  .clicky-persona-response.aira .response-persona { background: #ede9fe; color: #6366f1; }
+  .clicky-persona-response.rex .response-persona { background: #ffedd5; color: #f97316; }
+  .response-confidence { width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+  .confidence-bar { height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 3px; transition: width 0.3s; }
+  .response-answer { font-size: 14px; color: #334155; line-height: 1.6; margin-bottom: 8px; }
+  .response-source { font-size: 11px; color: #94a3b8; }
+  .response-notes { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 8px; }
 
   /* ============================================ */
   /* PRODUCT CARD */
@@ -136,18 +171,49 @@
   /* FOUNDER GRID */
   /* ============================================ */
   .clicky-founder-grid { display: flex; flex-direction: column; gap: 12px; }
-`,f=o=>`
+`,f=t=>`
   <div class="clicky-header">
-    <span>Clicky AI</span>
+    <span>Foundry AI</span>
     <span id="clicky-toggle">_</span>
   </div>
+  <div class="clicky-persona-toggle">
+    <button class="clicky-persona-btn active" data-persona="AIRA">
+      <span class="persona-icon">📋</span>
+      <span class="persona-name">AIRA</span>
+      <span class="persona-role">Records</span>
+    </button>
+    <button class="clicky-persona-btn" data-persona="REX">
+      <span class="persona-icon">⚡</span>
+      <span class="persona-name">REX</span>
+      <span class="persona-role">Actions</span>
+    </button>
+  </div>
   <div class="clicky-body" id="clicky-results">
-    <p>Hello! I'm Clicky. Ask me anything about foundry products.</p>
     <div id="clicky-suggestions"></div>
   </div>
   <div class="clicky-input-area">
-    <input type="text" class="clicky-input" id="clicky-input" placeholder="Ask a question..." />
-    <button class="clicky-btn" id="clicky-send">Go</button>
+    <input type="text" class="clicky-input" id="clicky-input" placeholder="Ask AIRA or REX..." />
+    <button class="clicky-btn" id="clicky-send">Ask</button>
   </div>
-`,g=o=>`<p id="${o}" style="color:#666; font-style:italic;">Thinking...</p>`,y=o=>{const e=document.createElement("p");return e.className="clicky-error",e.textContent=o,e},k=o=>{const e=document.createElement("div");return Object.assign(e.style,{marginTop:"10px",padding:"8px",background:"#eef",borderRadius:"4px"}),e.textContent=o,e},h=(o,e)=>{const t=document.createElement("div");return t.style.marginTop="10px",o.forEach(i=>{const c=document.createElement("button");c.textContent=i,Object.assign(c.style,{margin:"2px",fontSize:"0.8em",background:"none",border:"1px solid #ccc",borderRadius:"4px",cursor:"pointer",padding:"2px 6px"}),c.onclick=()=>e(i),t.appendChild(c)}),t};class s{constructor(e){this.config=null,this.api=null,this.shadowRoot=null,e&&this.init(e)}init(e){if(this.config){console.warn("Clicky already initialized");return}if(!e||!e.token){console.error("Clicky: Auth token is required.");return}this.config={mode:"mini",serverUrl:"http://localhost:5003",...e},this.api=new l(this.config.serverUrl,this.config.token),console.log("Clicky Core Initialized"),this.mount()}mount(){const e=document.createElement("div");e.id="clicky-host",document.body.appendChild(e),this.shadowRoot=e.attachShadow({mode:"open"});const t=document.createElement("style");t.textContent=x,this.shadowRoot.appendChild(t);const i=document.createElement("div");i.className=`clicky-ui ${this.config.mode}`,i.innerHTML=f(this.config.mode),this.shadowRoot.appendChild(i),this.bindEvents(i)}bindEvents(e){const t=this.shadowRoot.getElementById("clicky-input"),i=this.shadowRoot.getElementById("clicky-send"),c=this.shadowRoot.getElementById("clicky-toggle");i.addEventListener("click",()=>this.handleQuery(t.value)),t.addEventListener("keypress",a=>{a.key==="Enter"&&this.handleQuery(t.value)}),c.addEventListener("click",()=>{e.classList.toggle("mini"),e.classList.toggle("minimized"),e.classList.contains("minimized")?e.style.height="40px":e.style.height=""})}async handleQuery(e){const t=this.shadowRoot.getElementById("clicky-input"),i=this.shadowRoot.getElementById("clicky-results"),c=e.trim();if(!c)return;const a="loading-"+Date.now();i.insertAdjacentHTML("beforeend",g(a)),i.scrollTop=i.scrollHeight,t.value="";try{const n=await this.api.query(c,this.config.context),d=this.shadowRoot.getElementById(a);d&&d.remove(),i.insertAdjacentHTML("beforeend",n.html),n.summary&&i.appendChild(k(n.summary)),n.suggestions&&n.suggestions.length&&i.appendChild(h(n.suggestions,p=>{t.value=p,this.handleQuery(p)}))}catch(n){console.error(n);const d=this.shadowRoot.getElementById(a);d&&d.remove(),i.appendChild(y("Connection failed."))}i.scrollTop=i.scrollHeight}}const u=s;window.ClickyBot=s,r.ClickyBot=u,Object.defineProperty(r,Symbol.toStringTag,{value:"Module"})}));
+`,x=t=>{const e=t.persona==="AIRA"?"aira":"rex",o=Math.round(t.confidence*100);return`
+    <div class="clicky-persona-response ${e}">
+        <div class="response-header">
+            <span class="response-persona">${t.persona||"SYSTEM"}</span>
+            <span class="response-confidence" title="Confidence: ${o}%">
+                <span class="confidence-bar" style="width: ${o}%"></span>
+            </span>
+        </div>
+        <div class="response-answer">${t.answer}</div>
+        ${t.source&&t.source.length>0?`
+            <div class="response-source">
+                Source: ${t.source.join(", ")}
+            </div>
+        `:""}
+        ${t.notes?`<div class="response-notes">${t.notes}</div>`:""}
+    </div>
+    `},g=t=>`<p id="${t}" style="color:#666; font-style:italic;">Thinking...</p>`,y=t=>{const e=document.createElement("p");return e.className="clicky-error",e.textContent=t,e};class d{constructor(e){this.config=null,this.api=null,this.shadowRoot=null,this.selectedPersona="AIRA",e&&this.init(e)}init(e){if(this.config){console.warn("Clicky already initialized");return}if(!e||!e.token){console.error("Clicky: Auth token is required.");return}this.config={mode:"mini",serverUrl:"http://localhost:5003",...e},this.api=new l(this.config.serverUrl,this.config.token),console.log("[Foundry AI] Core Initialized"),this.mount()}mount(){const e=document.createElement("div");e.id="clicky-host",document.body.appendChild(e),this.shadowRoot=e.attachShadow({mode:"open"});const o=document.createElement("style");o.textContent=p,this.shadowRoot.appendChild(o);const i=document.createElement("div");i.className=`clicky-ui ${this.config.mode}`,i.innerHTML=f(this.config.mode),this.shadowRoot.appendChild(i),this.bindEvents(i),this.showGreeting()}showGreeting(){const e=this.shadowRoot.getElementById("clicky-results");if(e){const o=document.createElement("div");o.className="clicky-greeting",o.innerHTML=`
+                <p><strong>AIRA</strong> - Archives & Records</p>
+                <p><strong>REX</strong> - Decisions & Actions</p>
+                <p style="margin-top:8px; font-size:12px; color:#666;">Select a persona and ask your question.</p>
+            `,e.appendChild(o)}}bindEvents(e){const o=this.shadowRoot.getElementById("clicky-input"),i=this.shadowRoot.getElementById("clicky-send"),n=this.shadowRoot.getElementById("clicky-toggle"),a=this.shadowRoot.querySelectorAll(".clicky-persona-btn");i.addEventListener("click",()=>this.handlePersonaQuery(o.value)),o.addEventListener("keypress",r=>{r.key==="Enter"&&this.handlePersonaQuery(o.value)}),n.addEventListener("click",()=>{e.classList.toggle("mini"),e.classList.toggle("minimized"),e.classList.contains("minimized")?e.style.height="48px":e.style.height=""}),a.forEach(r=>{r.addEventListener("click",()=>{a.forEach(s=>s.classList.remove("active")),r.classList.add("active"),this.selectedPersona=r.dataset.persona,o.placeholder=`Ask ${this.selectedPersona}...`,console.log("[Foundry AI] Selected persona:",this.selectedPersona)})})}async handlePersonaQuery(e){const o=this.shadowRoot.getElementById("clicky-input"),i=this.shadowRoot.getElementById("clicky-results"),n=e.trim();if(!n)return;const a="loading-"+Date.now();i.insertAdjacentHTML("beforeend",g(a)),i.scrollTop=i.scrollHeight,o.value="";try{const r=await this.api.askPersona(n,this.selectedPersona,this.config.productId),s=this.shadowRoot.getElementById(a);s&&s.remove(),i.insertAdjacentHTML("beforeend",x(r))}catch(r){console.error("[Foundry AI] Error:",r);const s=this.shadowRoot.getElementById(a);s&&s.remove(),i.appendChild(y("Connection failed."))}i.scrollTop=i.scrollHeight}}const h=d;window.ClickyBot=d,c.ClickyBot=h,Object.defineProperty(c,Symbol.toStringTag,{value:"Module"})}));
 //# sourceMappingURL=clickysdk.js.map
