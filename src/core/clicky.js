@@ -1,6 +1,6 @@
 import { ApiClient } from '../api/api.js';
 import { styles } from '../ui/styles.js';
-import { renderMainUI, renderLoading, renderError, renderPersonaResponse } from '../ui/templates.js';
+import { renderMainUI, renderLoading, renderError, renderPersonaResponse, renderUserMessage } from '../ui/templates.js';
 
 export class ClickyCore {
     constructor(config) {
@@ -130,6 +130,9 @@ export class ClickyCore {
 
         if (!query) return;
 
+        // 1. Render User Message
+        results.insertAdjacentHTML('beforeend', renderUserMessage(query));
+
         // UI Optimistic Update
         const loadingId = 'loading-' + Date.now();
         results.insertAdjacentHTML('beforeend', renderLoading(loadingId));
@@ -166,7 +169,7 @@ export class ClickyCore {
             console.error('[Foundry AI] Error:', err);
             const loader = this.shadowRoot.getElementById(loadingId);
             if (loader) loader.remove();
-            results.appendChild(renderError('Connection failed.'));
+            results.appendChild(renderError('Beep boop. My brain is unplugged.'));
         }
 
         results.scrollTop = results.scrollHeight;
