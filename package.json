@@ -11,7 +11,7 @@
     "serve": "npx http-server dist -p 3003 -c-1",
     "demo": "npx kill-port 3003 || true && npm run build && npx http-server dist -p 3003 -c-1",
     "commit": "git add . && git commit -m 'update' && git push origin main",
-    "production": "git push -f origin main:PRODUCTION_DEPLOYMENT"
+    "production": "git push --force-with-lease origin main:PRODUCTION_DEPLOYMENT"
   },
   "keywords": [],
   "author": "",
