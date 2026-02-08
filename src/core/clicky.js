@@ -43,7 +43,7 @@ export class ClickyCore {
             this.selectedPersona = 'AIRA';
         }
 
-        console.log('[Foundry AI] Core Initialized. Persona:', this.selectedPersona);
+        console.log('[Clicktory AI] Core Initialized. Persona:', this.selectedPersona);
         // this.mount(); //no need
     }
 
@@ -147,7 +147,7 @@ export class ClickyCore {
                 this.config.productId // Optional product context
             );
 
-            console.log('[Foundry AI] API Response:', response);
+            console.log('[Clicktory AI] API Response:', response);
 
             // Normalize response (handle {data: ...} wrapper if present)
             const data = response.data || response;
@@ -161,12 +161,12 @@ export class ClickyCore {
                 const html = renderPersonaResponse(data);
                 results.insertAdjacentHTML('beforeend', html);
             } else {
-                console.error('[Foundry AI] Invalid response format:', data);
+                console.error('[Clicktory AI] Invalid response format:', data);
                 results.appendChild(renderError('Received invalid response from AI.'));
             }
 
         } catch (err) {
-            console.error('[Foundry AI] Error:', err);
+            console.error('[Clicktory AI] Error:', err);
             const loader = this.shadowRoot.getElementById(loadingId);
             if (loader) loader.remove();
             results.appendChild(renderError('Beep boop. My brain is unplugged.'));
