@@ -1,6 +1,6 @@
 {
-  "name": "botclient",
-  "version": "3.3.9.1",
+  "name": "@clicktory/botclient",
+  "version": "3.3.14.19",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
